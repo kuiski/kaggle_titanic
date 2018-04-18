@@ -1,0 +1,1 @@
+python src_nishimura/titanic_predict.py3 で動く
