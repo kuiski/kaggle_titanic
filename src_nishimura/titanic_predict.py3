@@ -12,6 +12,7 @@ import numpy as np
 
 import pandas as pd
 import seaborn as sn
+from sklearn import ensemble
 from sklearn.metrics import confusion_matrix, precision_score, accuracy_score
 import random
 
@@ -24,18 +25,34 @@ warnings.simplefilter(action='ignore', category=FutureWarning) #ChainerのFuture
 
 import pickle
 import os
+import csv
 
 def load_train_data():
-    pass
+    train_data = pd.read_csv('input/train.csv')
+    # feature_data = train_data.loc[:,['Pclass','Sex','Age','SibSp','Parch','Ticket','Fare','Cabin','Embarked']]
+    feature_data = train_data.loc[:,['Age','SibSp','Parch','Fare']]
+    feature_data = feature_data.fillna(0)
+    label_data = train_data.loc[:,['Survived']]
+    return feature_data, label_data
 
-def output_prediction():
+def output_prediction(clf):
     # PassengerId,Survived
-    pass
+    # test_feature = pd.read_csv('input/test.csv').loc[:, ['Pclass','Sex','Age','SibSp','Parch','Ticket','Fare','Cabin','Embarked']]
+    test_feature = pd.read_csv('input/test.csv').loc[:,['Age','SibSp','Parch','Fare']]
+    test_feature = test_feature.fillna(0)
+    predictions = clf.predict(test_feature)
+
+    passenger_id = pd.read_csv('input/test.csv').loc[:,['PassengerId']]
+    f = open('output_nishimura/sample_predictions.csv', 'w')
+    print('PassengerId,Survived', file=f)
+    for passenger_id_in_test, predict in enumerate(predictions):
+        print('%s,%s' % (passenger_id.loc[passenger_id_in_test][0], predict), file=f)
 
 def main():
-    # 特徴量
-    pass
-
+    feature_data, label_data = load_train_data()
+    clf = ensemble.RandomForestClassifier()
+    clf.fit(feature_data,label_data)
+    output_prediction(clf)
 
 if __name__ == "__main__":
     """ コマンドエラー時に表示する文字列 """
